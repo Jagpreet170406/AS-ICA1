@@ -153,20 +153,27 @@ def create_app() -> Flask:
     @app.route("/records/<int:record_id>")
     @login_required
     def record_detail(record_id: int):
-        # Starter behaviour: record lookup is intentionally simple.
-        # Students should review the required access rules for the final application.
         record = query_one(
             """
-            SELECT records.*, users.full_name AS owner_name, users.department AS owner_department
+            SELECT records.*, users.full_name AS owner_name
             FROM records
             JOIN users ON records.owner_id = users.id
             WHERE records.id = ?
             """,
             (record_id,),
         )
-
         if record is None:
             abort(404)
+
+        user = g.current_user
+        allowed = (
+            user["role"] == "Admin"
+            or (user["role"] == "Manager" and record["owner_department"] == user["department"])
+            or record["owner_user_id"] == user["id"]
+        )
+
+        if not allowed:
+            abort(403)
 
         return render_template("record_detail.html", record=record)
 
