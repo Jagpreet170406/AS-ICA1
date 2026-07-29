@@ -86,20 +86,43 @@ def create_app() -> Flask:
         )
 
     @app.route("/records")
+    #Edited to add RBAC. 
     @login_required
     def records():
-        # Starter behaviour: this list is deliberately broad.
-        # Students should review whether the final application enforces appropriate role, ownership,
-        # department, and scope rules for their assignment.
-        rows = query_all(
-            """
-            SELECT records.*, users.full_name AS owner_name, users.department AS owner_department
-            FROM records
-            JOIN users ON records.owner_id = users.id
-            ORDER BY records.created_at DESC
-            """
-        )
-        return render_template("records.html", records=rows)
+        user = g.current_user
+        if user["role"] == "Admin":
+            records = query_all(
+                """
+                SELECT records.*, users.full_name AS owner_name
+                FROM records
+                JOIN users ON records.owner_id = users.id
+                ORDER BY records.created_at DESC
+                """
+            )
+        elif user["role"] == "Manager":
+            records = query_all(
+                """
+                SELECT records.*, users.full_name AS owner_name
+                FROM records
+                JOIN users ON records.owner_id = users.id
+                WHERE users.department = ?
+                ORDER BY records.created_at DESC
+                """,
+                (user["department"],),
+            )
+        else:
+            records = query_all(
+                """
+                SELECT records.*, users.full_name AS owner_name
+                FROM records
+                JOIN users ON records.owner_id = users.id
+                WHERE records.owner_id = ?
+                ORDER BY records.created_at DESC
+                """,
+                (user["id"],),
+            )
+
+        return render_template("records.html", records=records)
 
     @app.route("/records/new", methods=["GET", "POST"])
     @login_required
