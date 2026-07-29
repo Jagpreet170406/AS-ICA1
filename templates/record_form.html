@@ -7,8 +7,14 @@
         <label for="title">Title</label>
         <input id="title" name="title" maxlength="120" required>
 
+        <!--CHANGED TO ALLOWLIST VALUES ONLY-->
         <label for="category">Category</label>
-        <input id="category" name="category" placeholder="e.g. IT Support" required>
+        <select id="category" name="category" required>
+            <option value="">---Select category---</option>
+            <option value="IT Support">IT Support</option>
+            <option value="HR">HR</option>
+            <option value="Finance">Finance</option>
+        </select>
 
         <label for="priority">Priority</label>
         <select id="priority" name="priority">

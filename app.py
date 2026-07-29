@@ -124,21 +124,41 @@ def create_app() -> Flask:
 
         return render_template("records.html", records=records)
 
+    #Added allowlist for category (prevent hidden form fields)
+    ALLOWED_CATEGORIES = {"IT Support", "Facilities", "HR"}
+    ALLOWED_PRIORITIES = {"Low", "Medium", "High", "Urgent"}
+
     @app.route("/records/new", methods=["GET", "POST"])
     @login_required
     def new_record():
         if request.method == "POST":
             # Starter behaviour: minimal processing only.
             # Students should apply appropriate validation and secure control flow before submission.
-            title = request.form.get("title", "")
-            category = request.form.get("category", "")
-            description = request.form.get("description", "")
-            priority = request.form.get("priority", "Medium")
+            title = request.form.get("title", "").strip()
+            category = request.form.get("category", "").strip()
+            description = request.form.get("description", "").strip()
+            priority = request.form.get("priority", "Medium").strip()
+
+            #Added the checks for allowlist, length and required fields. 
+            errors = []
+            if not title or len(title) > 120:
+                errors.append("Title is required and must be under 120 characters.")
+            if category not in ALLOWED_CATEGORIES:
+                errors.append("Invalid category selected.")
+            if priority not in ALLOWED_PRIORITIES:
+                errors.append("Invalid priority selected.")
+            if not description or len(description) > 2000:
+                errors.append("Description is required and must be under 2000 characters.")
+
+            if errors:
+                for e in errors:
+                    flash(e, "error")
+                return render_template("record_form.html"), 400
 
             now = current_timestamp()
             db = get_db()
             db.execute(
-                """
+                 """
                 INSERT INTO records (owner_id, title, category, description, priority, status, created_at, updated_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """,
