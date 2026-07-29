@@ -155,7 +155,8 @@ def create_app() -> Flask:
     def record_detail(record_id: int):
         record = query_one(
             """
-            SELECT records.*, users.full_name AS owner_name
+            SELECT records.*, users.full_name AS owner_name, users.department AS owner_department,
+            users.id AS owner_user_id
             FROM records
             JOIN users ON records.owner_id = users.id
             WHERE records.id = ?
