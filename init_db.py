@@ -52,6 +52,24 @@ def reset_database() -> None:
         """
     )
 
+    #Add the priority requests table
+    cur.execute(
+        """
+            CREATE TABLE priority_requests (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            record_id INTEGER NOT NULL,
+            requester_id INTEGER NOT NULL,
+            current_priority TEXT NOT NULL,
+            requested_priority TEXT NOT NULL,
+            justification TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT 'Pending',
+            created_at TEXT NOT NULL,
+            FOREIGN KEY (record_id) REFERENCES records(id),
+            FOREIGN KEY (requester_id) REFERENCES users(id)
+            )    
+        """
+    )
+    
     cur.execute(
         """
         CREATE TABLE audit_events (
