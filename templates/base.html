@@ -19,6 +19,7 @@
                 <!-- Manager admin viewing html -->
                  {% if g.current_user["role"] in ("Manager", "Admin") %}
                  <a href="{{ url_for('priority_requests_review') }}">Priority Request</a>
+                 {% endif %}
                 <form method="post" action="{{ url_for('logout') }}" class="inline-form">
                     <button type="submit" class="link-button">Logout</button>
                 </form>
