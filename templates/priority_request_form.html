@@ -1,0 +1,24 @@
+<!-- Added the new priority request form html-->
+{% extends "base.html" %}
+{% block title %}Request Priority Change | StaffHub{% endblock %}
+{% block content %}
+<section class="card narrow-card">
+    <h1>Request Priority Change</h1>
+    <p class="muted">Record: {{ record["title"] }} (current priority: {{ record["priority"] }})</p>
+    <form method="post" class="stacked-form">
+        <label for="requested_priority">New Priority</label>
+        <select id="requested_priority" name="requested_priority" required>
+            <option value="">-- Select priority --</option>
+            <option>Low</option>
+            <option>Medium</option>
+            <option>High</option>
+            <option>Urgent</option>
+        </select>
+
+        <label for="justification">Justification</label>
+        <textarea id="justification" name="justification" rows="4" maxlength="500" required></textarea>
+
+        <button type="submit">Submit Request</button>
+    </form>
+</section>
+{% endblock %}

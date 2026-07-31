@@ -170,6 +170,7 @@ def create_app() -> Flask:
 
         return render_template("record_form.html")
 
+
     @app.route("/records/<int:record_id>")
     @login_required
     def record_detail(record_id: int):
@@ -197,6 +198,62 @@ def create_app() -> Flask:
             abort(403)
 
         return render_template("record_detail.html", record=record)
+
+    #Allowlist for Priority Request Values 
+    ALLOWED_PRIORITY_REQUEST_VALUES = {"Low", "Medium", "High", "Urgent"}
+
+     #Priority Request Route Added
+    @app.route("/records/<int:record_id>/priority-request", methods=["GET", "POST"])
+    @login_required
+    def new_priority_request(record_id: int):
+        record = query_one(
+            """
+                SELECT records.*, users.id AS owner_user_id
+                FROM records
+                JOIN users ON records.owner_id = users.id
+                WHERE records.id = ?
+            """,
+            (record_id,),
+        )
+
+        if record is None:
+            abort(404)
+
+        #Only the record's owner  can request a priority change.
+        if record["owner_user_id"] != g.current_user["id"]:
+            abort(403)
+
+        if request.method == "POST":
+            requested_priority = request.form.get("requested_priority", "").strip()
+            justification = request.form.get("justification", "").strip()
+
+            errors = []
+            if requested_priority not in ALLOWED_PRIORITY_REQUEST_VALUES:
+                errors.append("Invalid priority selected.")
+            if not justification or len(justification) > 500:
+                errors.append("Justification is required and must be under 500 characters.")
+
+            if errors:
+                for e in errors:
+                    flash(e, "error")
+                return render_template("priority_request_form.html", record=record), 400
+
+            now = current_timestamp()
+            db = get_db()
+            db.execute(
+                """
+                    INSERT INTO priority_requests
+                        (record_id, requester_id, current_priority, requested_priority, justification, status, created_at)
+                    VALUES (?, ?, ?,  ?, ?, 'Pending', ?)
+                """,
+                (record["id"], g.current_user["id"], record["priority"], requested_priority, justification, now)
+            )
+            db.commit()
+            flash("Priority change request submitted.", "success")
+            return redirect(url_for("record_detail", record_id=record["id"]))
+
+        return render_template("priority_request_form.html", record=record)
+
 
     @app.route("/profile")
     @login_required

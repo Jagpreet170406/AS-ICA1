@@ -15,5 +15,6 @@
 
     <h2>Description</h2>
     <div class="record-description">{{ record["description"]}}</div>  <!--REMOVED |SAFE FROM HERE -->
+    <p><a class="button" href="{{ url_for('new_priority_request', record_id=record['id']) }}">Request Priority Change</a></p> <!--Added due to the priority request change form-->
 </section>
 {% endblock %}
