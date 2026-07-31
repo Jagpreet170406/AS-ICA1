@@ -254,6 +254,41 @@ def create_app() -> Flask:
 
         return render_template("priority_request_form.html", record=record)
 
+    #Added a Manager/Admin review for Priority Requests
+    @app.route("/priority-requests")
+    @login_required
+    def priority_requests_review():
+        user = g.current_user
+
+        if user["role"] not in ("Manager", "Admin"):
+            abort(403)
+
+        if user["role"] == "Admin":
+            rows = query_all(
+                """
+                SELECT priority_requests.*, records.title AS record_title,
+                       users.full_name AS requester_name, users.department AS requester_department
+                FROM priority_requests
+                JOIN records ON priority_requests.record_id = records.id
+                JOIN users ON priority_requests.requester_id = users.id
+                ORDER BY priority_requests.created_at DESC
+                """
+            )
+        else:  # Manager
+            rows = query_all(
+                """
+                SELECT priority_requests.*, records.title AS record_title,
+                       users.full_name AS requester_name, users.department AS requester_department
+                FROM priority_requests
+                JOIN records ON priority_requests.record_id = records.id
+                JOIN users ON priority_requests.requester_id = users.id
+                WHERE users.department = ?
+                ORDER BY priority_requests.created_at DESC
+                """,
+                (user["department"],),
+            )
+
+        return render_template("priority_requests_review.html", requests=rows)
 
     @app.route("/profile")
     @login_required
