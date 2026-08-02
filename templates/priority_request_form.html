@@ -6,6 +6,7 @@
     <h1>Request Priority Change</h1>
     <p class="muted">Record: {{ record["title"] }} (current priority: {{ record["priority"] }})</p>
     <form method="post" class="stacked-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <label for="requested_priority">New Priority</label>
         <select id="requested_priority" name="requested_priority" required>
             <option value="">-- Select priority --</option>

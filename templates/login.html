@@ -5,6 +5,7 @@
     <h1>StaffHub Login</h1>
     <p class="muted">Use one of the test accounts listed in the README.</p>
     <form method="post" class="stacked-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <label for="username">Username</label>
         <input id="username" name="username" autocomplete="username" required>
 

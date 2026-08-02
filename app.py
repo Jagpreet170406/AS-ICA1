@@ -15,6 +15,7 @@ from flask import (
     session,
     url_for,
 )
+from flask_wtf import CSRFProtect
 from werkzeug.security import check_password_hash
 
 from config import DATABASE_PATH, SECRET_KEY
@@ -24,6 +25,8 @@ def create_app() -> Flask:
     app = Flask(__name__)
     app.config["SECRET_KEY"] = SECRET_KEY
     app.config["DATABASE"] = DATABASE_PATH
+
+    csrf = CSRFProtect(app)
 
     @app.before_request
     def load_current_user() -> None:

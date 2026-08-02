@@ -21,6 +21,7 @@
                  <a href="{{ url_for('priority_requests_review') }}">Priority Request</a>
                  {% endif %}
                 <form method="post" action="{{ url_for('logout') }}" class="inline-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit" class="link-button">Logout</button>
                 </form>
             </nav>

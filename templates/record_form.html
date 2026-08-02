@@ -4,6 +4,7 @@
 <section class="card">
     <h1>Submit New Record</h1>
     <form method="post" class="stacked-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <label for="title">Title</label>
         <input id="title" name="title" maxlength="120" required>
 
