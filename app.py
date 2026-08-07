@@ -418,15 +418,6 @@ def login_required(view: Callable[..., Any]) -> Callable[..., Any]:
 
     return wrapped_view
 
-
-def is_admin(user: sqlite3.Row | None) -> bool:
-    return user is not None and user["role"] == "Admin"
-
-
-def is_manager(user: sqlite3.Row | None) -> bool:
-    return user is not None and user["role"] == "Manager"
-
-
 app = create_app()
 
 if __name__ == "__main__":
