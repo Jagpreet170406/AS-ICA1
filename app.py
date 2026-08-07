@@ -333,12 +333,21 @@ def create_app() -> Flask:
 
         db = get_db()
         db.execute(
-            "UPDATE records SET priority = ?, updated_at = ? WHERE id = ?",
-            (req["requested_priority"], current_timestamp(), req["record_id"]),
+            "UPDATE priority_requests SET status = ? WHERE id = ?",
+            (new_status, request_id),
         )
 
+        if new_status == "Approved":
+            db.execute(
+                "UPDATE records SET priority = ?, updated_at = ? WHERE id = ?",
+                (req["requested_priority"], current_timestamp(), req["record_id"]),
+            )
+
         db.commit()
-        flash(f"Request rejected.", "danger")
+        if new_status == "Approved":
+            flash("Request approved.", "success")
+        else:
+            flash("Request rejected.", "danger")
         return redirect(url_for("priority_requests_review"))
 
     @app.route("/profile")
