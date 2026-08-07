@@ -9,33 +9,48 @@
 <section class="card">
     <table>
         <thead>
-            <tr>
-                <th>Record</th>
-                <th>Requester</th>
-                <th>Department</th>
-                <th>Current</th>
-                <th>Requested</th>
-                <th>Justification</th>
-                <th>Status</th>
-                <th>Submitted</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for req in requests %}
-            <tr>
-                <td>{{ req["record_title"] }}</td>
-                <td>{{ req["requester_name"] }}</td>
-                <td>{{ req["requester_department"] }}</td>
-                <td>{{ req["current_priority"] }}</td>
-                <td>{{ req["requested_priority"] }}</td>
-                <td>{{ req["justification"] }}</td>
-                <td>{{ req["status"] }}</td>
-                <td>{{ req["created_at"] }}</td>
-            </tr>
-            {% else %}
-            <tr><td colspan="8">No priority change requests found.</td></tr>
-            {% endfor %}
-        </tbody>
+    <tr>
+        <th>Record</th>
+        <th>Requester</th>
+        <th>Department</th>
+        <th>Current</th>
+        <th>Requested</th>
+        <th>Justification</th>
+        <th>Status</th>
+        <th>Submitted</th>
+        <th>Action</th>
+    </tr>
+</thead>
+<tbody>
+    {% for req in requests %}
+    <tr>
+        <td>{{ req["record_title"] }}</td>
+        <td>{{ req["requester_name"] }}</td>
+        <td>{{ req["requester_department"] }}</td>
+        <td>{{ req["current_priority"] }}</td>
+        <td>{{ req["requested_priority"] }}</td>
+        <td>{{ req["justification"] }}</td>
+        <td>{{ req["status"] }}</td>
+        <td>{{ req["created_at"] }}</td>
+        <td>
+            {% if req["status"] == "Pending" %}
+            <form method="post" action="{{ url_for('priority_request_action', request_id=req['id']) }}" class="inline-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="action" value="Approve">
+                <button type="submit">Approve</button>
+            </form>
+            <form method="post" action="{{ url_for('priority_request_action', request_id=req['id']) }}" class="inline-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="action" value="Reject">
+                <button type="submit">Reject</button>
+            </form>
+            {% endif %}
+        </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="9">No priority change requests found.</td></tr>
+    {% endfor %}
+</tbody>
     </table>
 </section>
 {% endblock %}

@@ -294,6 +294,52 @@ def create_app() -> Flask:
 
         return render_template("priority_requests_review.html", requests=rows)
 
+    ALLOWED_REQUEST_ACTIONS = {"Approve", "Reject"}
+
+    @app.route("/priority-requests/<int:request_id>/action", methods=["POST"])
+    @login_required
+    def priority_request_action(request_id: int):
+        user = g.current_user
+
+        if user["role"] not in ("Manager", "Admin"):
+            abort(403)
+
+        req = query_one(
+            """
+            SELECT priority_requests.*, users.department AS requester_department
+            FROM priority_requests
+            JOIN users ON priority_requests.requester_id = users.id
+            WHERE priority_requests.id = ?
+            """,
+            (request_id,),
+        )
+
+        if req is None:
+            abort(404)
+
+        if user["role"] == "Manager" and req["requester_department"] != user["department"]:
+            abort(403)
+
+        if req["status"] != "Pending":
+            flash("This request has already been actioned.", "error")
+            return redirect(url_for("priority_requests_review"))
+
+        action = request.form.get("action", "").strip()
+        if action not in ALLOWED_REQUEST_ACTIONS:
+            abort(400)
+
+        new_status = "Approved" if action == "Approve" else "Rejected"
+
+        db = get_db()
+        db.execute(
+            "UPDATE records SET priority = ?, updated_at = ? WHERE id = ?",
+            (req["requested_priority"], current_timestamp(), req["record_id"]),
+        )
+
+        db.commit()
+        flash(f"Request {new_status.lower()}.", "success")
+        return redirect(url_for("priority_requests_review"))
+
     @app.route("/profile")
     @login_required
     def profile():
