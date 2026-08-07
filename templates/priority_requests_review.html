@@ -37,12 +37,12 @@
             <form method="post" action="{{ url_for('priority_request_action', request_id=req['id']) }}" class="inline-form">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="action" value="Approve">
-                <button type="submit">Approve</button>
+                <button type="submit" class="button-approve">Approve</button>
             </form>
             <form method="post" action="{{ url_for('priority_request_action', request_id=req['id']) }}" class="inline-form">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="action" value="Reject">
-                <button type="submit">Reject</button>
+                <button type="submit" class="button-reject">Reject</button>
             </form>
             {% endif %}
         </td>

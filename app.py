@@ -275,6 +275,7 @@ def create_app() -> Flask:
                 FROM priority_requests
                 JOIN records ON priority_requests.record_id = records.id
                 JOIN users ON priority_requests.requester_id = users.id
+                WHERE priority_requests.status = 'Pending'
                 ORDER BY priority_requests.created_at DESC
                 """
             )
@@ -286,7 +287,7 @@ def create_app() -> Flask:
                 FROM priority_requests
                 JOIN records ON priority_requests.record_id = records.id
                 JOIN users ON priority_requests.requester_id = users.id
-                WHERE users.department = ?
+                WHERE users.department = ? AND priority_requests.status = 'Pending'
                 ORDER BY priority_requests.created_at DESC
                 """,
                 (user["department"],),
@@ -337,7 +338,7 @@ def create_app() -> Flask:
         )
 
         db.commit()
-        flash(f"Request {new_status.lower()}.", "success")
+        flash(f"Request rejected.", "danger")
         return redirect(url_for("priority_requests_review"))
 
     @app.route("/profile")

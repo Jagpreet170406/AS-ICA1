@@ -228,3 +228,24 @@ th {
 .muted {
     color: var(--muted);
 }
+
+.flash.danger {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.button-approve {
+    background: #16a34a;
+}
+
+.button-approve:hover {
+    background: #15803d;
+}
+
+.button-reject {
+    background: #dc2626;
+}
+
+.button-reject:hover {
+    background: #b91c1c;
+}
